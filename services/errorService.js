@@ -1,4 +1,3 @@
-
 class ErrorService {
     formErrorJson(message) {
         return {

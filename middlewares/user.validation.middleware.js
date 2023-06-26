@@ -8,45 +8,59 @@ const phoneNumberPattern = /^\+380\d{9}$/;
 const fields = Object.keys(USER)
     .filter(key => key !== 'id');
 
-const checkEmail = (email) => {
+const validateEmail = (email) => {
     if (
         !email ||
         !emailPattern.test(email)
     ) {
         throw new Error(
-            "Invalid email and only @gmail.com domain is allowed."
+            "Invalid email (only @gmail.com domain is allowed)"
         );
     }
 };
 
-const checkPhoneNumber = (phoneNumber) => {
+const validatePhoneNumber = (phoneNumber) => {
     if (!phoneNumber || !phoneNumberPattern.test(phoneNumber)) {
         throw new Error(
-            "Invalid phone number, enter the number in this format +380xxxxxxxxx."
+            "Invalid phone number, enter the number in this format: +380xxxxxxxxx."
         );
     }
 };
 
-const checkPassword = (password) => {
+const validatePassword = (password) => {
     if (password.length < 3) {
         throw new Error("There must be at least 3 characters in the password.");
     }
 };
 
-const checkFunctions = {
-    email: checkEmail,
-    phoneNumber: checkPhoneNumber,
-    password: checkPassword
+const validateFunctions = {
+    email: validateEmail,
+    phoneNumber: validatePhoneNumber,
+    password: validatePassword
 }
 
 const checkBodyRequest = (body, model) => {
     console.log("model", model);
     fields.forEach(field => {
-        if (body[field] && checkFunctions[field]) {
-            checkFunctions[field](body[field]);
+        if (body[field] && validateFunctions[field]) {
+            validateFunctions[field](body[field]);
         }
     });
 };
+
+function checkFieldsExistInModel(req) {
+    const requestedKeys = Object.keys(req.body);
+    const initialKeys = Object.keys(USER);
+
+    requestedKeys.forEach(item => {
+        if (!initialKeys.includes(item)) {
+            throw new Error(`Invalid field ${item}.`);
+        }
+        if (!req.body[item]) {
+            throw new Error(`Empty field ${item}.`);
+        }
+    });
+}
 
 const createUserValid = (req, res, next) => {
     const {email, phoneNumber} = req.body;
@@ -56,24 +70,17 @@ const createUserValid = (req, res, next) => {
             throw new Error("Invalid number of fields.");
         }
 
-        const requestedKeys = Object.keys(req.body);
-        const initialKeys = Object.keys(USER);
-
-        requestedKeys.forEach(item => {
-            if (!initialKeys.includes(item)) {
-                throw new Error(`Invalid field ${item}.`);
-            }
-            if (!req.body[item]) {
-                throw new Error(`Empty field ${item}.`);
-            }
-        });
+        checkFieldsExistInModel(req);
 
         checkBodyRequest(req.body, USER);
 
         const userEmail = userService.search({email});
         const userPhoneNumber = userService.search({phoneNumber});
-        if (userEmail || userPhoneNumber) {
-            throw new Error(`This user with an email or phone number already exist.`);
+        if (userEmail) {
+            throw new Error(`User with email ${email} already exists.`);
+        }
+        if (userPhoneNumber) {
+            throw new Error(`User with phone number ${phoneNumber} already exists.`);
         }
 
         res.data = {...req.body};
@@ -97,17 +104,17 @@ const updateUserValid = (req, res, next) => {
             throw new Error("No fields to update.");
         }
 
-        const requestedKeys = Object.keys(req.body);
-        const initialKeys = Object.keys(USER);
+        checkFieldsExistInModel(req);
 
-        requestedKeys.forEach(item => {
-            if (!initialKeys.includes(item)) {
-                throw new Error(`Invalid field ${item}.`);
-            }
-            if (!req.body[item]) {
-                throw new Error(`Empty field ${item}.`);
-            }
-        });
+        const userByEmail = userService.search({email: req.body.email});
+        const userByPhoneNumber = userService.search({phoneNumber: req.body.phoneNumber});
+
+        if (userByEmail && userByEmail.id !== id) {
+            throw new Error(`User with email ${req.body.email} already exists.`);
+        }
+        if (userByPhoneNumber && userByPhoneNumber.id !== id) {
+            throw new Error(`User with phone number ${req.body.phoneNumber} already exists.`);
+        }
 
         checkBodyRequest(req.body, USER);
         res.data = {...req.body};

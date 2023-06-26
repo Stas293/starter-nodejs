@@ -38,7 +38,7 @@ const validateHealth = (health) => {
     }
 }
 
-const checkFunctions = {
+const validateFunctions = {
     power: validatePower,
     defense: validateDefense,
     health: validateHealth
@@ -46,8 +46,8 @@ const checkFunctions = {
 
 const checkBodyRequest = (body, model) => {
     for (let key in model) {
-        if (body[key] && checkFunctions[key]) {
-            checkFunctions[key](body[key]);
+        if (body[key] && validateFunctions[key]) {
+            validateFunctions[key](body[key]);
         }
     }
 };
@@ -60,31 +60,35 @@ const checkCreateFields = (body) => {
     }
 }
 
+function checkFieldsExistInModel(req) {
+    const requestedKeys = Object.keys(req.body);
+    const initialKeys = Object.keys(FIGHTER);
+
+    requestedKeys.forEach(item => {
+        if (!initialKeys.includes(item)) {
+            throw new Error(`Invalid field ${item}.`);
+        }
+        if (!req.body[item]) {
+            throw new Error(`Empty field ${item}.`);
+        }
+    });
+}
+
 const createFighterValid = (req, res, next) => {
     const {name} = req.body;
 
     try {
-        const fighter = fighterService.search({name});
-        if (name === fighter?.name) {
-            throw new Error(`This fighter ${name} has already been created. `);
-        }
-
         if (Object.keys(req.body).length < Object.keys(FIGHTER).length - 2) {
             throw new Error("Invalid number of fields.");
         }
         checkCreateFields(req.body);
 
-        const requestedKeys = Object.keys(req.body);
-        const initialKeys = Object.keys(FIGHTER);
+        checkFieldsExistInModel(req);
 
-        requestedKeys.forEach(item => {
-            if (!initialKeys.includes(item)) {
-                throw new Error(`Invalid field ${item}.`);
-            }
-            if (!req.body[item]) {
-                throw new Error(`Empty field ${item}.`);
-            }
-        });
+        const fighter = fighterService.search({name});
+        if (name === fighter?.name) {
+            throw new Error(`This fighter ${name} has already been created. `);
+        }
 
         checkBodyRequest(req.body, FIGHTER);
         res.data = {...req.body};
@@ -108,17 +112,12 @@ const updateFighterValid = (req, res, next) => {
             throw new Error("No fields to update.");
         }
 
-        const requestedKeys = Object.keys(req.body);
-        const initialKeys = Object.keys(FIGHTER);
+        checkFieldsExistInModel(req);
 
-        requestedKeys.forEach(item => {
-            if (!initialKeys.includes(item)) {
-                throw new Error(`Invalid field ${item}.`);
-            }
-            if (!req.body[item]) {
-                throw new Error(`Empty field ${item}.`);
-            }
-        });
+        const fighterByName = fighterService.search({name: req.body.name});
+        if (fighterByName && fighterByName.id !== id) {
+            throw new Error(`This fighter ${req.body.name} has already been created. `);
+        }
 
         checkBodyRequest(req.body, FIGHTER);
 

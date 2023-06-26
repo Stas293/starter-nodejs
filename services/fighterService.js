@@ -28,7 +28,7 @@ class FighterService {
         };
         const fighter = fighterRepository.create(data);
         if (!fighter) {
-            return null;
+            throw new Error(`The fighter ${body} has not been saved.`);
         }
         return fighter;
     }
