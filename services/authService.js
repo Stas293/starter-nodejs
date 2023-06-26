@@ -1,15 +1,15 @@
-import { userService } from "./userService.js";
+import {userService} from "./userService.js";
 
 class AuthService {
-  login(userData) {
-    const user = userService.search(userData);
-    if (!user) {
-      throw Error("User not found");
+    login(userData) {
+        const user = userService.search(userData);
+        if (!user) {
+            throw Error("User not found");
+        }
+        return user;
     }
-    return user;
-  }
 }
 
 const authService = new AuthService();
 
-export { authService };
+export {authService};

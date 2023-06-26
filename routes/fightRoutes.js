@@ -1,13 +1,24 @@
-import { Router } from "express";
-import { fightersService } from "../services/fightService.js";
-import {
-  createUserValid,
-  updateUserValid,
-} from "../middlewares/user.validation.middleware.js";
-import { responseMiddleware } from "../middlewares/response.middleware.js";
+import {Router} from "express";
+import {fightersService} from "../services/fightService.js";
+import {responseMiddleware} from "../middlewares/response.middleware.js";
 
 const router = Router();
 
-// OPTIONAL TODO: Implement route controller for fights
+router.post(
+    "/",
+    (req, res, next) => {
 
-export { router };
+        try {
+            res.data = fightersService.save(req.body);
+            res.status(201);
+        } catch (err) {
+            res.err = err;
+            res.status(400);
+        } finally {
+            next();
+        }
+    },
+    responseMiddleware
+);
+
+export {router};

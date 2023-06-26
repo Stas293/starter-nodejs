@@ -8,6 +8,92 @@ import {
 
 const router = Router();
 
-// TODO: Implement route controllers for fighter
+router.get(
+    "/",
+    (req, res, next) => {
+      try {
+        res.data = fighterService.findAll();
+        res.status(200);
+      } catch (err) {
+        res.err = err;
+        res.status(404);
+      } finally {
+        next();
+      }
+    },
+    responseMiddleware
+);
+
+router.get(
+    "/:id",
+    (req, res, next) => {
+      const {id} = req.params;
+
+      try {
+        res.data = fighterService.search({id});
+        res.status(200);
+      } catch (err) {
+        res.err = err;
+        res.status(404);
+      } finally {
+        next();
+      }
+    },
+    responseMiddleware
+);
+
+router.post(
+    "/",
+    createFighterValid,
+    (req, res, next) => {
+      try {
+        res.data = fighterService.save(req.body);
+        res.status(201);
+      } catch (err) {
+        res.err = err;
+        res.status(400);
+      } finally {
+        next();
+      }
+    },
+    responseMiddleware
+);
+
+router.put(
+    "/:id",
+    updateFighterValid,
+    (req, res, next) => {
+      const {id} = req.params;
+
+      try {
+        res.data = fighterService.update(id, req.body);
+        res.status(200);
+      } catch (err) {
+        res.err = err;
+        res.status(400);
+      } finally {
+        next();
+      }
+    },
+    responseMiddleware
+);
+
+router.delete(
+    "/:id",
+    (req, res, next) => {
+      const {id} = req.params;
+
+      try {
+        res.data = fighterService.delete(id);
+        res.status(200);
+      } catch (err) {
+        res.err = err;
+        res.status(400);
+      } finally {
+        next();
+      }
+    },
+    responseMiddleware
+);
 
 export { router };
