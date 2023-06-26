@@ -85,9 +85,14 @@ const createFighterValid = (req, res, next) => {
 
         checkFieldsExistInModel(req);
 
-        const fighter = fighterService.search({name});
-        if (name === fighter?.name) {
-            throw new Error(`This fighter ${name} has already been created. `);
+        if (req.body.id) {
+            throw new Error("The id field is not allowed.");
+        }
+
+        const capitalizeName = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+        const fighterByCaseInsensitiveName = fighterService.search({name: capitalizeName});
+        if (fighterByCaseInsensitiveName) {
+            throw new Error(`This fighter ${capitalizeName} already exists.`);
         }
 
         checkBodyRequest(req.body, FIGHTER);
@@ -114,9 +119,14 @@ const updateFighterValid = (req, res, next) => {
 
         checkFieldsExistInModel(req);
 
-        const fighterByName = fighterService.search({name: req.body.name});
+        if (req.body.id) {
+            throw new Error("The id field is not allowed.");
+        }
+
+        const capitalizeName = req.body.name.charAt(0).toUpperCase() + req.body.name.slice(1).toLowerCase();
+        const fighterByName = fighterService.search({name: capitalizeName});
         if (fighterByName && fighterByName.id !== id) {
-            throw new Error(`This fighter ${req.body.name} has already been created. `);
+            throw new Error(`This fighter ${req.body.name} has already been created.`);
         }
 
         checkBodyRequest(req.body, FIGHTER);

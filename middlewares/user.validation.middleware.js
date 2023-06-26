@@ -74,7 +74,11 @@ const createUserValid = (req, res, next) => {
 
         checkBodyRequest(req.body, USER);
 
-        const userEmail = userService.search({email});
+        if (req.body.id) {
+            throw new Error("Id field is not allowed.");
+        }
+
+        const userEmail = userService.search({email: email.toLowerCase()});
         const userPhoneNumber = userService.search({phoneNumber});
         if (userEmail) {
             throw new Error(`User with email ${email} already exists.`);
@@ -106,7 +110,14 @@ const updateUserValid = (req, res, next) => {
 
         checkFieldsExistInModel(req);
 
-        const userByEmail = userService.search({email: req.body.email});
+        if (req.body.id) {
+            throw new Error("Id field is not allowed.");
+        }
+
+        let userByEmail = null;
+        if (req.body.email) {
+            userByEmail = userService.search({email: req.body.email.toLowerCase()});
+        }
         const userByPhoneNumber = userService.search({phoneNumber: req.body.phoneNumber});
 
         if (userByEmail && userByEmail.id !== id) {

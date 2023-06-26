@@ -21,7 +21,7 @@ class FighterService {
         const {name, power, defense, health} = body;
 
         const data = {
-            name,
+            name: name.charAt(0).toUpperCase() + name.slice(1).toLowerCase(),
             power,
             defense,
             health: health || 100,
@@ -34,6 +34,9 @@ class FighterService {
     }
 
     update(id, data) {
+        if (data.name) {
+            data.name = data.name.charAt(0).toUpperCase() + data.name.slice(1).toLowerCase();
+        }
         const fighter = fighterRepository.update(id, data);
         if (!fighter) {
             return null;

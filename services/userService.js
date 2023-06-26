@@ -18,6 +18,9 @@ class UserService {
     }
 
     save(user) {
+        user.firstName = user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1).toLowerCase();
+        user.lastName = user.lastName.charAt(0).toUpperCase() + user.lastName.slice(1).toLowerCase();
+        user.email = user.email.toLowerCase();
         const savedUser = userRepository.create(user);
         if (!savedUser) {
             throw new Error(`The user ${user} has not been created.`);
@@ -26,6 +29,15 @@ class UserService {
     }
 
     update(id, data) {
+        if (data.firstName) {
+            data.firstName = data.firstName.charAt(0).toUpperCase() + data.firstName.slice(1).toLowerCase();
+        }
+        if (data.lastName) {
+            data.lastName = data.lastName.charAt(0).toUpperCase() + data.lastName.slice(1).toLowerCase();
+        }
+        if (data.email) {
+            data.email = data.email.toLowerCase();
+        }
         const user = userRepository.update(id, data);
         if (!user) {
             return null;
