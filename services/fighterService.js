@@ -34,6 +34,9 @@ class FighterService {
     }
 
     update(id, data) {
+        if (fighterRepository.getOne({id}) === null) {
+            throw new Error(`Fighter with id ${id} does not exist.`);
+        }
         if (data.name) {
             data.name = data.name.charAt(0).toUpperCase() + data.name.slice(1).toLowerCase();
         }

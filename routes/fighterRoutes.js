@@ -13,7 +13,7 @@ router.get(
             res.status(200);
         } catch (err) {
             res.err = err;
-            res.status(404);
+            res.status(400);
         } finally {
             next();
         }
@@ -36,7 +36,7 @@ router.get(
             }
         } catch (err) {
             res.err = err;
-            res.status(404);
+            res.status(400);
         } finally {
             next();
         }

@@ -123,10 +123,12 @@ const updateFighterValid = (req, res, next) => {
             throw new Error("The id field is not allowed.");
         }
 
-        const capitalizeName = req.body.name.charAt(0).toUpperCase() + req.body.name.slice(1).toLowerCase();
-        const fighterByName = fighterService.search({name: capitalizeName});
-        if (fighterByName && fighterByName.id !== id) {
-            throw new Error(`This fighter ${req.body.name} has already been created.`);
+        if (req.body.name) {
+            const capitalizeName = req.body.name.charAt(0).toUpperCase() + req.body.name.slice(1).toLowerCase();
+            const fighterByName = fighterService.search({name: capitalizeName});
+            if (fighterByName && fighterByName.id !== id) {
+                throw new Error(`This fighter ${req.body.name} has already been created.`);
+            }
         }
 
         checkBodyRequest(req.body, FIGHTER);

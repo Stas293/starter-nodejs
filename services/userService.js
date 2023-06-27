@@ -29,6 +29,9 @@ class UserService {
     }
 
     update(id, data) {
+        if (userRepository.getOne({id}) === null) {
+            throw new Error(`User with id ${id} does not exist.`);
+        }
         if (data.firstName) {
             data.firstName = data.firstName.charAt(0).toUpperCase() + data.firstName.slice(1).toLowerCase();
         }
